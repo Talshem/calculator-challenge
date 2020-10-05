@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import { MathOperation, operationTypes } from './MathOperation';
 import DigitButton from './DigitButton';
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
-/**
- * A basic switch calcuation function
- * @param {*} operation The name or type of the operation used, for ex. : "sqrt" / "+"
- * @param {*} num1 The first num to use in the calculation
- * @param {*} num2 The second num to use in the calculation
- */
 function calculate(operation, num1, num2 = 0) {
 
   switch (operation) {
@@ -29,38 +24,68 @@ function calculate(operation, num1, num2 = 0) {
 }
 
 function Calc() {
-const [result, setResult] = useState(0)
-  /**
-   * Add (0-9) to <DigitButton /> with value and onClick function as exlplained in the requirements
-   * Add the correct types to MathOperation, if you are having problem make sure its written correctly compared to operationTypes array
-   * This is a state machine, you'll need to work wisely with React.js State and Lifecycle functionality
-   * You can use calculate function for your aid
-   */
+const [primary, setPrimary] = useState(0)
+const [secondary, setSecondary] = useState(0)
+const [action, setAction] = useState(undefined)
 
-
-const addToResult = (e) => {
-let sum = result.toString() + e.toString()
-setResult(Number(sum))
+const addOperator = (value) => {
+switch (value) {
+    case '.':
+addToResult(value)
+return
+    case 'AC':
+setAction(undefined)
+setPrimary(0)
+setSecondary(undefined)
+return
+    case '=':
+setSecondary(undefined)
+setPrimary(calculate(action, primary, secondary))
+return
+    default:
+setAction(value)
 }
+}
+
+console.log(action)
+const addToResult = (e) => {
+console.log(action)
+if (!action) {
+setPrimary(primary => Number(primary.toString() + e.toString()))
+} else {
+setSecondary(secondary => Number(secondary.toString() + e.toString()))
+}
+}
+
+
+
+const [digits, setDigits] = useState(() => {
+let array = [];
+for ( let i = 0; i < 10; i++) {
+array.push(<DigitButton value={i} key={i} onClick={addToResult}/>)
+};
+return array
+})
+
+const [operators, setOperators] = useState(() => {
+let array = [];
+for ( let operator in operationTypes) {
+array.push(<MathOperation type={operationTypes[operator]} key={operationTypes[operator]} onClick={addOperator}/>)
+}
+return array
+})
+
 
 
 
   return (
     <div className='calculator'>
       <div className='result'>
-        {result}
+        {secondary ? secondary : primary}
       </div>
       <div className='calculator-digits'>
-        {DigitButton({value: 0, onClick: () => addToResult(0)})}
-        {DigitButton({value: 1, onClick: () => addToResult(1)})}
-        {DigitButton({value: 2, onClick: () => addToResult(2)})}
-        {DigitButton({value: 3, onClick: () => addToResult(3)})}
-        {DigitButton({value: 4, onClick: () => addToResult(4)})}
-        {DigitButton({value: 5, onClick: () => addToResult(5)})}
-        {DigitButton({value: 6, onClick: () => addToResult(6)})}
-        {DigitButton({value: 7, onClick: () => addToResult(7)})}
-        {DigitButton({value: 8, onClick: () => addToResult(8)})}
-        {DigitButton({value: 9, onClick: () => addToResult(9)})}
+{digits.map(e => {return e})}
+{operators.map(e => {return e})}
       </div>
     </div>
   );
