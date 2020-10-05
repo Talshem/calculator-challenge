@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MathOperation, operationTypes } from './MathOperation';
 import DigitButton from './DigitButton';
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
+import { act } from 'react-dom/test-utils';
 
-/**
- * A basic switch calcuation function
- * @param {*} operation The name or type of the operation used, for ex. : "sqrt" / "+"
- * @param {*} num1 The first num to use in the calculation
- * @param {*} num2 The second num to use in the calculation
- */
 function calculate(operation, num1, num2 = 0) {
+
+if(operation === '/' && num2 === 0){
+  return 'Error'
+}
+
   switch (operation) {
     case '+':
       return num1 + num2;
@@ -28,24 +29,123 @@ function calculate(operation, num1, num2 = 0) {
 }
 
 function Calc() {
-  /**
-   * Add (0-9) to <DigitButton /> with value and onClick function as exlplained in the requirements
-   * Add the correct types to MathOperation, if you are having problem make sure its written correctly compared to operationTypes array
-   * This is a state machine, you'll need to work wisely with React.js State and Lifecycle functionality
-   * You can use calculate function for your aid
-   */
+const [number, setNumber] = useState(0)
+const [primary, setPrimary] = useState(0)
+const [secondary, setSecondary] = useState(undefined)
+const [action, setAction] = useState(undefined)
+const [equal, setEqual] = useState(false)
+const [decimal, setDecimal] = useState(false)
+const [result, setResult] = useState(false)
+const [toggle, setToggle] = useState(0)
+
+const handleOperator = (value) => {
+switch (value) {
+    case '.':
+setDecimal(true)
+return
+    case 'AC':
+setNumber(0)
+setPrimary(0)
+setAction(undefined)
+setSecondary(undefined)
+setResult(false)
+return
+    case '=':
+setEqual(true)
+setToggle(e => e + 1)
+return
+    default:
+setNumber('')
+setResult(false)
+setEqual(false)
+setAction(value)
+}
+}
+
+const handleNumber = (e) => {
+setNumber(number => number.toString() + e.toString())
+}
+
+useEffect(() => {
+const passNumbers = () => {
+
+if(decimal && !String(number).includes('.')){
+setNumber(number => number.toString() + '.')
+setDecimal(false)
+}
+
+switch (action) {
+    case '√':
+new Promise((resolve, reject) => {
+resolve((calculate('sqrt', primary)))
+})
+.then((value) => {
+setPrimary(value)
+setResult(value.toString())
+});
+setSecondary(undefined)
+setAction(undefined)
+return
+
+    case 'x²':
+new Promise((resolve, reject) => {
+resolve((calculate('power', primary)))
+})
+.then((value) => {
+setPrimary(value)
+setResult(value.toString())
+});
+setSecondary(undefined)
+setAction(undefined)
+return
+}
+
+if (!action) {
+setPrimary(Number(number))
+} else {
+setSecondary(Number(number))
+}
+
+if(equal && action){
+new Promise((resolve, reject) => {
+resolve((calculate(action, primary, secondary)))
+})
+.then((value) => {
+setPrimary(value)
+setResult(value.toString())
+});
+}
+
+}; passNumbers();
+}, [action, number, equal, decimal, toggle])
+
+
+const [digits, setDigits] = useState(() => {
+let array = [];
+for ( let i = 0; i < 10; i++) {
+array.push(<DigitButton value={i} key={i} onClick={handleNumber}/>)
+};
+return array
+})
+
+const [operators, setOperators] = useState(() => {
+let array = [];
+for ( let operator in operationTypes) {
+array.push(<MathOperation type={operationTypes[operator]} key={operationTypes[operator]} onClick={handleOperator}/>)
+}
+return array
+})
+
+let display = secondary ? secondary : primary
 
   return (
     <div className='calculator'>
       <div className='result'>
-        {/**
-         * Print the result of the calculation here
-         */}
+        {result ? result : display}
       </div>
       <div className='calculator-digits'>
-         {/**
-          * Enter here all of the MathOperation and DigitButton components
-          */}
+{digits.map(e => {return e})}
+{operators.map(e => {return e})}
       </div>
     </div>
   );
