@@ -7,7 +7,7 @@ import { act } from 'react-dom/test-utils';
 function calculate(operation, num1, num2 = 0) {
 
 if(operation === '/' && num2 === 0){
-  return alert('Error')
+  return 'error'
 }
 
   switch (operation) {
@@ -31,10 +31,15 @@ if(operation === '/' && num2 === 0){
 function Calc() {
 const [number, setNumber] = useState(0)
 const [primary, setPrimary] = useState(0)
-const [secondary, setSecondary] = useState(0)
+const [secondary, setSecondary] = useState(undefined)
 const [action, setAction] = useState(undefined)
 const [equal, setEqual] = useState(false)
 const [decimal, setDecimal] = useState(false)
+const [result, setResult] = useState(false)
+const [toggle, setToggle] = useState(0)
+
+
+console.log(secondary)
 
 const handleOperator = (value) => {
 switch (value) {
@@ -43,20 +48,25 @@ setDecimal(true)
 return
     case 'AC':
 setNumber(0)
+setPrimary(0)
 setAction(undefined)
 setSecondary(undefined)
+setResult(false)
 return
     case '=':
 setEqual(true)
+setToggle(e => e + 1)
 return
     default:
-setNumber(0)
+setNumber(undefined)
+setResult(false)
+setEqual(false)
 setAction(value)
 }
 }
 
 const handleNumber = (e) => {
-setNumber(number => number.toString() + e.toString())
+setNumber(isNaN(number) ? number => number.toString() + e.toString() : e.toString())
 }
 
 useEffect(() => {
@@ -67,18 +77,6 @@ setNumber(number => number.toString() + '.')
 setDecimal(false)
 }
 
-if(equal){
-new Promise((resolve, reject) => {
-resolve((calculate(action, primary, secondary)))
-})
-.then((value) => {
-setPrimary(value)
-});
-setAction(undefined)
-setEqual(false)
-return 
-}
-
 switch (action) {
     case '√':
 new Promise((resolve, reject) => {
@@ -86,16 +84,19 @@ resolve((calculate('sqrt', primary)))
 })
 .then((value) => {
 setPrimary(value)
+setResult(value.toString())
 });
 setSecondary(undefined)
 setAction(undefined)
 return
+
     case 'x²':
 new Promise((resolve, reject) => {
 resolve((calculate('power', primary)))
 })
 .then((value) => {
 setPrimary(value)
+setResult(value.toString())
 });
 setSecondary(undefined)
 setAction(undefined)
@@ -106,8 +107,20 @@ if (!action) {
 setPrimary(Number(number))
 } else {
 setSecondary(Number(number))
-}}; passNumbers();
-}, [action, number, equal, decimal])
+}
+
+if(equal && action){
+new Promise((resolve, reject) => {
+resolve((calculate(action, primary, secondary)))
+})
+.then((value) => {
+setPrimary(value)
+setResult(value.toString())
+});
+}
+
+}; passNumbers();
+}, [action, number, equal, decimal, toggle])
 
 
 const [digits, setDigits] = useState(() => {
@@ -126,10 +139,12 @@ array.push(<MathOperation type={operationTypes[operator]} key={operationTypes[op
 return array
 })
 
+let display = secondary ? secondary : primary
+
   return (
     <div className='calculator'>
       <div className='result'>
-        {action ? secondary : primary}
+        {result ? result : display}
       </div>
       <div className='calculator-digits'>
 {digits.map(e => {return e})}
