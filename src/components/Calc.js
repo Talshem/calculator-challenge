@@ -7,7 +7,7 @@ import { act } from 'react-dom/test-utils';
 function calculate(operation, num1, num2 = 0) {
 
 if(operation === '/' && num2 === 0){
-  return 'error'
+  return 'Error'
 }
 
   switch (operation) {
@@ -38,9 +38,6 @@ const [decimal, setDecimal] = useState(false)
 const [result, setResult] = useState(false)
 const [toggle, setToggle] = useState(0)
 
-
-console.log(secondary)
-
 const handleOperator = (value) => {
 switch (value) {
     case '.':
@@ -58,7 +55,7 @@ setEqual(true)
 setToggle(e => e + 1)
 return
     default:
-setNumber(undefined)
+setNumber(0)
 setResult(false)
 setEqual(false)
 setAction(value)
@@ -66,7 +63,7 @@ setAction(value)
 }
 
 const handleNumber = (e) => {
-setNumber(isNaN(number) ? number => number.toString() + e.toString() : e.toString())
+setNumber(number => number.toString() + e.toString())
 }
 
 useEffect(() => {
