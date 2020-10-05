@@ -9,6 +9,7 @@ import DigitButton from './DigitButton';
  * @param {*} num2 The second num to use in the calculation
  */
 function calculate(operation, num1, num2 = 0) {
+
   switch (operation) {
     case '+':
       return num1 + num2;
@@ -28,6 +29,7 @@ function calculate(operation, num1, num2 = 0) {
 }
 
 function Calc() {
+const [result, setResult] = useState(0)
   /**
    * Add (0-9) to <DigitButton /> with value and onClick function as exlplained in the requirements
    * Add the correct types to MathOperation, if you are having problem make sure its written correctly compared to operationTypes array
@@ -35,17 +37,30 @@ function Calc() {
    * You can use calculate function for your aid
    */
 
+
+const addToResult = (e) => {
+let sum = result.toString() + e.toString()
+setResult(Number(sum))
+}
+
+
+
   return (
     <div className='calculator'>
       <div className='result'>
-        {/**
-         * Print the result of the calculation here
-         */}
+        {result}
       </div>
       <div className='calculator-digits'>
-         {/**
-          * Enter here all of the MathOperation and DigitButton components
-          */}
+        {DigitButton({value: 0, onClick: () => addToResult(0)})}
+        {DigitButton({value: 1, onClick: () => addToResult(1)})}
+        {DigitButton({value: 2, onClick: () => addToResult(2)})}
+        {DigitButton({value: 3, onClick: () => addToResult(3)})}
+        {DigitButton({value: 4, onClick: () => addToResult(4)})}
+        {DigitButton({value: 5, onClick: () => addToResult(5)})}
+        {DigitButton({value: 6, onClick: () => addToResult(6)})}
+        {DigitButton({value: 7, onClick: () => addToResult(7)})}
+        {DigitButton({value: 8, onClick: () => addToResult(8)})}
+        {DigitButton({value: 9, onClick: () => addToResult(9)})}
       </div>
     </div>
   );
