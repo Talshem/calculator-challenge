@@ -55,7 +55,7 @@ setEqual(true)
 setToggle(e => e + 1)
 return
     default:
-setNumber(0)
+setNumber('')
 setResult(false)
 setEqual(false)
 setAction(value)
