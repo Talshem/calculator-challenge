@@ -31,49 +31,83 @@ if(operation === '/' && num2 === 0){
 function Calc() {
 const [number, setNumber] = useState(0)
 const [primary, setPrimary] = useState(0)
-const [secondary, setSecondary] = useState(undefined)
+const [secondary, setSecondary] = useState(0)
+
+const [operation, setOperation] = useState(undefined)
 const [action, setAction] = useState(undefined)
+
 const [equal, setEqual] = useState(false)
 const [decimal, setDecimal] = useState(false)
-const [result, setResult] = useState(false)
 const [toggle, setToggle] = useState(0)
 
-const handleOperator = (value) => {
-switch (value) {
-    case '.':
-setDecimal(true)
-return
-    case 'AC':
-setNumber(0)
-setPrimary(0)
-setAction(undefined)
-setSecondary(undefined)
-setResult(false)
-return
-    case '=':
-setEqual(true)
-setToggle(e => e + 1)
-return
-    default:
-setNumber('')
-setResult(false)
-setEqual(false)
-setAction(value)
-}
+const [caseEqual, setCaseEqual] = useState(false)
+
+const handleOperator = (e) => {
+setOperation(e)
+setToggle(num => num + 1)
 }
 
 const handleNumber = (e) => {
 setNumber(number => number.toString() + e.toString())
 }
 
+
+useEffect(() => {
+const equalFunction = () => {
+if(equal && action){
+new Promise((resolve, reject) => {
+resolve((calculate(action, primary, secondary)))
+})
+.then((value) => {
+setEqual(false)
+setPrimary(value)
+if(operation === '=' ) {
+setCaseEqual(true)
+}
+});
+}
+if (operation !== '=' && operation !== '.') {
+setAction(operation)
+}
+}; equalFunction();
+}, [equal])
+
+
+console.log(primary + '---' + action + '---' + secondary + '---' + number + '---' + operation)
+
+useEffect(() => {
+
+const operationFunction = () => {
+if(action && secondary  && operation !== '=' && operation !== 'AC' && !caseEqual){
+setNumber('')
+setEqual(true)
+return
+}
+setCaseEqual(false)
+
+switch (operation) {
+case '=':
+setEqual(true)
+break;
+    case '.':
+setDecimal(true)
+break;
+    case 'AC':
+setSecondary(0)
+setPrimary(0)
+setNumber(0)
+setAction(undefined)
+setOperation(undefined)
+break;
+    default:
+setNumber('')
+setAction(operation)
+}
+}; operationFunction();
+}, [toggle])
+
 useEffect(() => {
 const passNumbers = () => {
-
-if(decimal && !String(number).includes('.')){
-setNumber(number => number.toString() + '.')
-setDecimal(false)
-}
-
 switch (action) {
     case '√':
 new Promise((resolve, reject) => {
@@ -81,9 +115,8 @@ resolve((calculate('sqrt', primary)))
 })
 .then((value) => {
 setPrimary(value)
-setResult(value.toString())
 });
-setSecondary(undefined)
+setSecondary(0)
 setAction(undefined)
 return
 
@@ -93,32 +126,31 @@ resolve((calculate('power', primary)))
 })
 .then((value) => {
 setPrimary(value)
-setResult(value.toString())
 });
-setSecondary(undefined)
+setSecondary(0)
 setAction(undefined)
 return
 }
-
 if (!action) {
 setPrimary(Number(number))
 } else {
 setSecondary(Number(number))
 }
-
-if(equal && action){
-new Promise((resolve, reject) => {
-resolve((calculate(action, primary, secondary)))
-})
-.then((value) => {
-setPrimary(value)
-setResult(value.toString())
-});
-}
-
 }; passNumbers();
-}, [action, number, equal, decimal, toggle])
+}, [action, number])
 
+
+
+
+
+
+useEffect(() => {
+const decimalFunction = () => {
+if(decimal && !String(number).includes('.')){
+setNumber(number => number.toString() + '.')
+setDecimal(false)
+}}; decimalFunction();
+}, [decimal])
 
 const [digits, setDigits] = useState(() => {
 let array = [];
@@ -136,12 +168,10 @@ array.push(<MathOperation type={operationTypes[operator]} key={operationTypes[op
 return array
 })
 
-let display = secondary ? secondary : primary
-
   return (
     <div className='calculator'>
       <div className='result'>
-        {result ? result : display}
+        {secondary && operation !== '=' ? secondary : primary}
       </div>
       <div className='calculator-digits'>
 {digits.map(e => {return e})}
