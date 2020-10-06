@@ -72,9 +72,6 @@ setAction(operation)
 }; equalFunction();
 }, [equal])
 
-
-console.log(primary + '---' + action + '---' + secondary + '---' + number + '---' + operation)
-
 useEffect(() => {
 
 const operationFunction = () => {
