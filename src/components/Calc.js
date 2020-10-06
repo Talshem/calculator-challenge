@@ -78,7 +78,7 @@ console.log(primary + '---' + action + '---' + secondary + '---' + number + '---
 useEffect(() => {
 
 const operationFunction = () => {
-if(action && secondary  && operation !== '=' && operation !== 'AC' && !caseEqual){
+if(action && secondary && operation !== '.' && operation !== '=' && operation !== 'AC' && !caseEqual){
 setNumber('')
 setEqual(true)
 return
